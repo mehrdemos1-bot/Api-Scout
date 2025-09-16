@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Api-Scout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <style>
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+        }
+        /* Fügt einen weichen unteren Rand bei scrollbaren Elementen auf Mobilgeräten hinzu,
+           um anzuzeigen, dass mehr Inhalt vorhanden ist. */
+        @media (max-width: 767px) {
+            .mobile-scroll-fade::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 3rem; /* 48px */
+                background: linear-gradient(to top, white, transparent);
+                pointer-events: none;
+            }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react-leaflet": "https://aistudiocdn.com/react-leaflet@^5.0.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "leaflet": "https://aistudiocdn.com/leaflet@^1.9.4",
+    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+    "vite": "https://aistudiocdn.com/vite@^7.1.5",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

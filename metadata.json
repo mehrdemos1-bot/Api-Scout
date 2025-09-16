@@ -1,0 +1,5 @@
+{
+  "name": "Api-Scout",
+  "description": "Eine interaktive Kartenanwendung für Imker, um die Standorte ihrer Bienenstöcke zu markieren und den 3 km-Flugradius jedes Volkes zu visualisieren. Planen Sie Standorte, vermeiden Sie Überlappungen und optimieren Sie die Nahrungsressourcen für Ihre Bienen.",
+  "requestFramePermissions": []
+}
