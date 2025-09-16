@@ -16,5 +16,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "dist", "api/analyze.ts"]
+  "exclude": ["node_modules", "dist"]
 }
