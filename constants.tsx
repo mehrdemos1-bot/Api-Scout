@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const DEFAULT_FLIGHT_RADIUS_METERS = 3000;
 export const FLIGHT_RADIUS_OPTIONS = [1000, 2000, 3000];
