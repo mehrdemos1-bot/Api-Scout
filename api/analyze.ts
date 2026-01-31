@@ -1,79 +1,69 @@
 
 import { GoogleGenAI } from "@google/genai";
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// This file is a Vercel Serverless Function.
-// It acts as a secure proxy to the Google Gemini API.
-// The frontend calls this endpoint, and this function adds the secret API key
-// before forwarding the request to Google.
-
-// Vercel automatically creates a Request object from the incoming HTTP request.
-export default async function handler(request: Request) {
-    if (request.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
-            status: 405,
-            headers: { 'Content-Type': 'application/json' },
-        });
+/**
+ * Serverless Function für Vercel.
+ * Diese Funktion läuft auf dem Server, daher ist der API_KEY hier sicher.
+ */
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // Nur POST-Anfragen erlauben
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Parse the JSON body from the frontend request
-        const { base64ImageData, lat, lng } = await request.json();
+        const { image, lat, lng, radius } = req.body;
+        const apiKey = process.env.API_KEY;
 
-        if (!base64ImageData || typeof lat !== 'number' || typeof lng !== 'number') {
-            return new Response(JSON.stringify({ error: 'Fehlende oder ungültige Parameter: base64ImageData, lat und lng sind erforderlich.' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+        if (!apiKey) {
+            return res.status(500).json({ error: 'API-Key auf dem Server nicht konfiguriert.' });
         }
+
+        if (!image) {
+            return res.status(400).json({ error: 'Keine Bilddaten empfangen.' });
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
         
-        // Initialize the AI client using the API_KEY from Vercel's environment variables
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+        const detailedPrompt = `
+Du bist ein weltweit führender Experte für Apidologie (Bienenkunde), Botanik und Landschaftsökologie. Deine Aufgabe ist es, einen potenziellen Bienenstandort umfassend zu bewerten.
 
-        // The logic here is the same as it was on the client-side before.
-        const imagePart = {
-            inlineData: {
-                mimeType: 'image/jpeg',
-                data: base64ImageData,
-            },
-        };
+Hierfür führst du zwei Analyse-Ebenen zusammen:
+1) Visuelle Analyse: Analysiere das bereitgestellte Satellitenbild für den Standort (Koordinaten: ${lat}, ${lng}) und einen Flugradius von ${radius} Metern.
+2) Kontextuelle Analyse: Nutze dein Wissen über die Flora bei diesen Koordinaten.
 
-        const textPart = {
-            text: `
-Analysiere das Satellitenbild im Flugradius eines Bienenstocks an den Koordinaten: Breitengrad ${lat}, Längengrad ${lng}.
-
-Gib eine kurze, stichpunktartige Zusammenfassung im Markdown-Format.
+Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
 
 **Futterquellen:**
-* Identifiziere Hauptvegetationstypen (z.B. Wald, Felder, Siedlungen).
-* Nenne basierend auf der Region typische Trachtpflanzen und ihren Nutzen (Nektar/Pollen/Honigtau).
+* [Liste]
 
 **Risiken:**
-* Identifiziere mögliche Nachteile (z.B. Monokulturen, Industrie, Wasserflächen).
+* [Liste]
 
-**Fazit:**
-* Fasse die Eignung des Standorts kurz zusammen.
-* Bewerte das Trachtpotenzial auf einer Skala von 1 (sehr schlecht) bis 10 (ausgezeichnet). Beispiel: **Bewertung:** 8/10
-`,
-        };
-        
+**Zusammenfassung:**
+[Text]
+
+**Bewertung:** [Zahl]/10
+        `.trim();
+
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [textPart, imagePart] },
+            model: 'gemini-3-flash-preview',
+            contents: {
+                parts: [
+                    { inlineData: { mimeType: 'image/jpeg', data: image } },
+                    { text: detailedPrompt }
+                ]
+            },
+            config: {
+                temperature: 0.1,
+            }
         });
 
-        // Send the successful analysis back to the frontend
-        return new Response(JSON.stringify({ analysis: response.text }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return res.status(200).json({ text: response.text });
 
-    } catch (error) {
-        console.error("Error in serverless function (api/analyze):", error);
-        const errorMessage = error instanceof Error ? error.message : "Unbekannter Serverfehler";
-        // Send a detailed error message back to the frontend
-        return new Response(JSON.stringify({ error: `Fehler bei der KI-Analyse: ${errorMessage}` }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+    } catch (error: any) {
+        console.error("Server-Fehler:", error);
+        return res.status(500).json({ error: error.message || 'Interner Server-Fehler' });
     }
 }

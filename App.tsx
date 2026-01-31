@@ -7,7 +7,7 @@ import { Instructions } from './components/Instructions';
 import { AddressSearch } from './components/AddressSearch';
 import { RadiusSelector } from './components/RadiusSelector';
 import { AnalysisModal } from './components/AnalysisModal';
-import { analyzeForagePotential } from './api/gemini';
+import { analyzeForagePotential } from './services/geminiService';
 import type { Hive } from './types';
 import { DEFAULT_FLIGHT_RADIUS_METERS } from './constants';
 
@@ -25,6 +25,7 @@ const App: React.FC = () => {
     const [analyzedHive, setAnalyzedHive] = useState<Hive | null>(null);
 
     const mapApiRef = useRef<MapComponentApi>(null);
+    const analysisAbortController = useRef<AbortController | null>(null);
 
 
     const handleAddHive = useCallback((lat: number, lng: number) => {
@@ -63,7 +64,6 @@ const App: React.FC = () => {
                 hive.id === hiveId ? { ...hive, radius: newRadius } : hive
             )
         );
-        // Also update the selected hive object if it's the one being changed
         if (selectedHive?.id === hiveId) {
             setSelectedHive(prevSelected => prevSelected ? { ...prevSelected, radius: newRadius } : null);
         }
@@ -72,15 +72,16 @@ const App: React.FC = () => {
     const handleAnalyzeHive = useCallback(async (hiveId: string) => {
         const hiveToAnalyze = hives.find(h => h.id === hiveId);
         if (!hiveToAnalyze || !mapApiRef.current) {
-            setAnalysisError("Karten-Komponente nicht bereit. Analyse kann nicht gestartet werden.");
+            setAnalysisError("Karten-Komponente nicht bereit.");
             setIsModalOpen(true);
             return;
         }
 
-        // Select the hive to center the map on it
+        analysisAbortController.current?.abort();
+        const controller = new AbortController();
+        analysisAbortController.current = controller;
+
         setSelectedHive(hiveToAnalyze);
-        setMapCenter(null);
-        
         setAnalyzedHive(hiveToAnalyze);
         setIsAnalyzing(true);
         setAnalysisResult(null);
@@ -89,28 +90,39 @@ const App: React.FC = () => {
 
         try {
             const imageData = await mapApiRef.current.captureHiveArea(hiveId);
-            const result = await analyzeForagePotential(imageData, hiveToAnalyze.lat, hiveToAnalyze.lng);
-            setAnalysisResult(result);
+            const result = await analyzeForagePotential(
+                imageData, 
+                hiveToAnalyze.lat, 
+                hiveToAnalyze.lng, 
+                hiveToAnalyze.radius
+            );
+            
+            if (!controller.signal.aborted) {
+                setAnalysisResult(result);
+            }
         } catch (error) {
-            console.error("Analysis failed:", error);
-            const errorMessage = error instanceof Error ? error.message : "Die Analyse ist fehlgeschlagen. Bitte versuchen Sie es später erneut.";
-            setAnalysisError(errorMessage);
+            if (error instanceof Error && error.name !== 'AbortError') {
+                setAnalysisError(error.message);
+            }
         } finally {
-            setIsAnalyzing(false);
+            if (analysisAbortController.current === controller) {
+                setIsAnalyzing(false);
+            }
         }
     }, [hives]);
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
-        // We don't reset the content immediately, so it doesn't vanish during the closing animation
+        analysisAbortController.current?.abort();
     }, []);
 
 
     return (
-        <div className="flex flex-col h-screen font-sans">
+        <div className="flex flex-col h-screen font-sans bg-gray-50 text-gray-900">
             <Header />
+            
             <div className="flex flex-col md:flex-row flex-1 min-h-0">
-                <aside className="relative w-full md:w-1/3 lg:w-1/4 xl:w-1/5 md:flex-shrink-0 bg-white shadow-lg p-2 md:p-4 overflow-y-auto flex flex-col h-2/5 md:h-auto mobile-scroll-fade">
+                <aside className="relative w-full md:w-1/3 lg:w-1/4 xl:w-1/5 md:flex-shrink-0 bg-white shadow-lg p-2 md:p-4 overflow-y-auto flex flex-col h-2/5 md:h-auto mobile-scroll-fade z-20">
                     <AddressSearch onSearchResultClick={handleSearchResultClick} />
                     <Instructions />
                     <RadiusSelector 
@@ -127,7 +139,8 @@ const App: React.FC = () => {
                         isAnalyzing={isAnalyzing}
                     />
                 </aside>
-                <main className="flex-grow h-3/5 md:h-auto">
+                
+                <main className="flex-grow h-3/5 md:h-auto relative z-10">
                     <MapComponent 
                         ref={mapApiRef}
                         hives={hives}
@@ -138,6 +151,15 @@ const App: React.FC = () => {
                     />
                 </main>
             </div>
+
+            <footer className="bg-white border-t py-2 px-4 flex justify-between items-center text-[10px] text-gray-400 z-30">
+                <div>&copy; {new Date().getFullYear()} Api-Scout - Smart Beekeeping</div>
+                <div className="space-x-4">
+                    <a href="#" className="hover:text-yellow-600">Impressum</a>
+                    <a href="#" className="hover:text-yellow-600">Datenschutz</a>
+                </div>
+            </footer>
+
             <AnalysisModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}

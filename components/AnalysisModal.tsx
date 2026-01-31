@@ -147,33 +147,62 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({ isOpen, onClose, i
 
                 <div className="p-6 overflow-y-auto">
                     {isLoading && (
-                        <div className="flex flex-col items-center justify-center space-y-4 min-h-[200px]">
-                            <svg className="animate-spin h-10 w-10 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p className="text-gray-600 font-semibold">KI analysiert die Umgebung...</p>
-                            <p className="text-sm text-gray-500 mt-2 text-center max-w-sm">
-                                Die KI führt eine detaillierte, standortspezifische Analyse durch. 
-                                Dies kann bis zu 90 Sekunden dauern. Vielen Dank für Ihre Geduld.
-                            </p>
+                        <div className="flex flex-col items-center justify-center space-y-4 min-h-[250px]">
+                            <div className="relative">
+                                <svg className="animate-spin h-12 w-12 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="h-2 w-2 bg-yellow-600 rounded-full animate-ping"></div>
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-gray-600 font-semibold text-lg">Experten-Analyse läuft...</p>
+                                <p className="text-sm text-gray-500 mt-3 max-w-sm">
+                                    Das Modell kombiniert nun das Satellitenbild mit lokalem Wissen über die Flora bei 
+                                    <span className="font-mono bg-gray-100 px-1 ml-1">Lat: {analyzedHive?.lat.toFixed(4)}</span>.
+                                </p>
+                            </div>
                         </div>
                     )}
                     {error && (
-                        <div className="text-center text-red-600 bg-red-100 p-4 rounded-md">
-                            <h3 className="font-bold">Fehler</h3>
-                            <p>{error}</p>
+                        <div className="text-center bg-red-50 border border-red-200 p-6 rounded-lg">
+                            <svg className="h-12 w-12 text-red-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <h3 className="font-bold text-red-800 text-lg mb-2">Analyse fehlgeschlagen</h3>
+                            <p className="text-red-700">{error}</p>
+                            <button 
+                                onClick={onClose}
+                                className="mt-6 text-sm text-red-600 font-semibold hover:underline"
+                            >
+                                Fenster schließen und erneut versuchen
+                            </button>
                         </div>
                     )}
-                    {!isLoading && !error && analysisResult !== null && (
+                    {!isLoading && !error && analysisResult && (
                         analysisResult.trim() ? (
                             <div className="max-w-none">
-                                {formatAnalysisText(analysisResult)}
+                                {(() => {
+                                    try {
+                                        // Try to format the text
+                                        return formatAnalysisText(analysisResult);
+                                    } catch (e) {
+                                        console.error("Failed to format analysis text, displaying raw text.", e);
+                                        // Fallback to displaying raw text with preserved line breaks
+                                        return (
+                                            <pre className="text-gray-700 whitespace-pre-wrap font-sans">
+                                                {analysisResult}
+                                            </pre>
+                                        );
+                                    }
+                                })()}
                             </div>
                         ) : (
-                            <div className="text-center text-gray-600 bg-gray-100 p-4 rounded-md">
+                            <div className="text-center text-gray-600 bg-gray-100 p-6 rounded-md">
                                 <h3 className="font-bold">Analyse abgeschlossen</h3>
-                                <p>Die KI hat für diesen Bereich keine spezifischen Futterquellen oder Risiken identifiziert.</p>
+                                <p>Die KI konnte keine detaillierten Informationen für diesen Bereich generieren.</p>
                             </div>
                         )
                     )}
@@ -182,17 +211,20 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({ isOpen, onClose, i
                     {!isLoading && analysisResult && !error && (
                         <button 
                             onClick={handleSave}
-                            className="bg-blue-500 text-white font-bold py-2 px-6 rounded-md hover:bg-blue-600 transition-colors"
+                            className="bg-blue-600 text-white font-bold py-2 px-6 rounded-md hover:bg-blue-700 shadow-sm transition-all flex items-center space-x-2"
                             aria-label="Analyse speichern"
                         >
-                            Speichern
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            <span>Ergebnis speichern</span>
                         </button>
                     )}
                     <button 
                         onClick={onClose} 
-                        className="bg-yellow-400 text-gray-800 font-bold py-2 px-6 rounded-md hover:bg-yellow-500"
+                        className="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-6 rounded-md hover:bg-gray-50 shadow-sm transition-all"
                     >
-                        Schließen
+                        {error ? 'Schließen' : 'Fertig'}
                     </button>
                 </footer>
             </div>
