@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 
 /**
- * Wir nutzen './logo.png' (relativ) mit einem Cache-Buster, 
- * um sicherzustellen, dass die aktuellste Datei geladen wird.
+ * Wir nutzen den einfachsten relativen Pfad. 
+ * Falls die Datei im selben Verzeichnis wie index.html liegt, ist dies am sichersten.
  */
-const LOGO_SRC = "./logo.png?v=" + Date.now(); 
+const LOGO_SRC = "logo.png"; 
 
 const BeeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-yellow-700">
@@ -20,23 +20,23 @@ export const Header: React.FC = () => {
         <header className="bg-yellow-400 text-gray-900 p-4 shadow-lg z-50 flex items-center justify-between border-b-2 border-yellow-500">
             <div className="flex items-center space-x-4">
                 <div className="relative group">
-                    {!logoError ? (
-                        <div className="bg-white rounded-full p-1 shadow-md group-hover:scale-110 transition-all duration-300 border-2 border-yellow-600/30">
-                            <img 
-                                src={LOGO_SRC} 
-                                alt="Blütenpiraten Logo" 
-                                className="h-14 w-14 object-contain rounded-full bg-white shadow-inner"
-                                onError={() => {
-                                    console.error("Logo konnte nicht geladen werden unter:", LOGO_SRC);
-                                    setLogoError(true);
-                                }}
-                            />
-                        </div>
-                    ) : (
-                        <div className="bg-yellow-300 rounded-full p-2 shadow-inner border-2 border-yellow-500">
-                            <BeeIcon />
-                        </div>
-                    )}
+                    <div className="bg-white rounded-full p-1 shadow-md group-hover:scale-110 transition-all duration-300 border-2 border-yellow-600/30 overflow-hidden h-16 w-16 flex items-center justify-center">
+                        {/* Wir rendern das Icon IMMER als Hintergrund/Fallback */}
+                        {logoError && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-yellow-50">
+                                <BeeIcon />
+                            </div>
+                        )}
+                        <img 
+                            src={LOGO_SRC} 
+                            alt="Blütenpiraten Logo" 
+                            className={`h-14 w-14 object-contain rounded-full transition-opacity duration-300 ${logoError ? 'opacity-0' : 'opacity-100'}`}
+                            onError={(e) => {
+                                console.error("Header-Logo Fehler:", LOGO_SRC);
+                                setLogoError(true);
+                            }}
+                        />
+                    </div>
                 </div>
                 <div>
                     <h1 className="text-2xl md:text-4xl font-black tracking-tighter leading-none text-gray-900 drop-shadow-sm italic uppercase">

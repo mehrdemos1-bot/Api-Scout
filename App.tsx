@@ -138,20 +138,24 @@ const App: React.FC = () => {
 
                     {/* Brand Footer in Sidebar */}
                     <div className="mt-auto pt-8 pb-4 flex flex-col items-center border-t border-gray-100">
-                        {!sidebarLogoError ? (
+                        <div className="relative w-20 h-20 mb-3 flex items-center justify-center">
+                            {sidebarLogoError && (
+                                <div className="absolute inset-0 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600 border border-yellow-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
+                                        <path fillRule="evenodd" d="M15.97 3.97a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22-2.16-2.16a.75.75 0 0 1 0-1.06Zm-4.94 0a.75.75 0 0 1 0 1.06L8.84 7.22l-3.22-3.22a.75.75 0 0 1 1.06-1.06l3 3ZM12 5.25a.75.75 0 0 1 .75.75v3.68l1.43-1.43a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L8.7 9.31a.75.75 0 1 1 1.06-1.06l1.44 1.44V6a.75.75 0 0 1 .75-.75Zm-3.75 9a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm-2.25 3a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                            )}
                             <img 
-                                src={"./logo.png?v=" + Date.now()} 
+                                src="logo.png" 
                                 alt="Blütenpiraten" 
-                                className="w-20 h-20 object-contain mb-3 opacity-90 hover:opacity-100 transition-all hover:scale-105"
-                                onError={() => setSidebarLogoError(true)}
+                                className={`w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 ${sidebarLogoError ? 'opacity-0' : 'opacity-100'}`}
+                                onError={() => {
+                                    console.error("Sidebar-Logo Fehler: logo.png");
+                                    setSidebarLogoError(true);
+                                }}
                             />
-                        ) : (
-                            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-3 text-yellow-600 border border-yellow-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
-                                    <path fillRule="evenodd" d="M15.97 3.97a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22-2.16-2.16a.75.75 0 0 1 0-1.06Zm-4.94 0a.75.75 0 0 1 0 1.06L8.84 7.22l-3.22-3.22a.75.75 0 0 1 1.06-1.06l3 3ZM12 5.25a.75.75 0 0 1 .75.75v3.68l1.43-1.43a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L8.7 9.31a.75.75 0 1 1 1.06-1.06l1.44 1.44V6a.75.75 0 0 1 .75-.75Zm-3.75 9a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm-2.25 3a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                        )}
+                        </div>
                         <a 
                             href="https://blütenpiraten.de" 
                             target="_blank" 
