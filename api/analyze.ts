@@ -67,8 +67,6 @@ Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
 **Risiken:**
 * [Liste von 1-4 Hauptrisiken für die Bienen an diesem Standort]
 
-**Zusammenfassung**
-* [Kurze, prägnante Beurteilung unter kritischer Abwägung von Standortpotenzial und Risiken]
 
 
 **Wichtiger Hinweis:**
