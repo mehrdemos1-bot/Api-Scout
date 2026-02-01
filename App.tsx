@@ -192,7 +192,7 @@ const App: React.FC = () => {
             </div>
 
             <footer className="bg-white border-t py-2 px-4 flex justify-between items-center text-[10px] text-gray-400 z-30">
-                <div>&copy; {new Date().getFullYear()} Api-Scout - Smart Beekeeping</div>
+                <div>&copy; {new Date().getFullYear()} Api-Scout - blütenpiraten.de</div>
                 <div className="space-x-4">
                     <a href="https://blütenpiraten.de/impressum/" className="hover:text-yellow-600">Impressum</a>
                     <a href="https://blütenpiraten.de/datenschutz" className="hover:text-yellow-600">Datenschutz</a>
