@@ -52,7 +52,7 @@ Hierfür führst du zwei Analyse-Ebenen zusammen:
 1) Visuelle Analyse: Analysiere das bereitgestellte Satellitenbild für den Standort (Koordinaten: ${lat.toFixed(6)}, ${lng.toFixed(6)}) und einen Flugradius von ${radius} Metern. Identifiziere Landnutzungsarten wie Mischwälder, Agrarflächen, Blühstreifen, Hausgärten, Alleen, Wasserquellen oder versiegelte Flächen.
 2) Kontextuelle Analyse: Nutze dein tiefes Wissen über die spezifische Region bei diesen Koordinaten (${lat.toFixed(4)}, ${lng.toFixed(4)}). Berücksichtige die dort typische lokale Flora, Blühphasen, Baumarten, landwirtschaftliche Nutzung und klimatische Bedingungen. 
 
-Führe die visuelle Analyse des bereitgestellten Sattelitenbildes mit der kontextuellen Analyse möglichst genau zusammen. Wenn beispielsweise das Sattelitenbild zeigt, dass Straßen von Bäumen gesäumt sind, dann führe dein Wissen über die vor Ort typische Straßenbeflanzung und deren Trachtpotential zusammen. 
+Führe die visuelle Analyse des bereitgestellten Sattelitenbildes mit der kontextuellen Analyse möglichst genau zusammen. Wenn beispielsweise das Sattelitenbild zeigt, dass Straßen signifikant von Bäumen gesäumt sind, dann führe dein Wissen über die vor Ort typische Straßenbeflanzung und deren Trachtpotential zusammen. 
 
 Achte bei deiner Bewertung besonders auf:
 - Das 'Trachtfließband': Gibt es eine kontinuierliche Versorgung mit Nektar und Pollen vom frühen Frühjahr bis in den späten Herbst? Wodurch könnten Trachtlücken entstehen?.
@@ -65,10 +65,11 @@ Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
 * [Liste von 4-10 Hauptfutterquellen, basierend auf Bild und Region]
 
 **Risiken:**
-* [Liste von 1-3 Hauptrisiken für die Bienen an diesem Standort]
+* [Liste von 1-4 Hauptrisiken für die Bienen an diesem Standort]
 
-**Zusammenfassung:**
-[Ein prägnanter Absatz zur Eignung des Standorts, der die visuelle Analyse mit dem botanischen Regionalwissen und den Risiken verknüpft.]
+**Zusammenfassung**
+* [Kurze, prägnante Beurteilung unter kritischer Abwägung von Standortpotenzial und Risiken]
+
 
 **Wichtiger Hinweis:**
 Diese KI-gestütze Analyse dient der groben Orientierung und kann Fehler enthalten. Sie ersetzt keine Begutachtung vor Ort.

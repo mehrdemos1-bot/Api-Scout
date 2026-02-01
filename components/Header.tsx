@@ -1,10 +1,6 @@
 
 import React, { useState } from 'react';
-
-/**
- * Absoluter Pfad ist in Web-Umgebungen am stabilsten.
- */
-const LOGO_SRC = "/logo.png"; 
+import { BRAND_LOGO_SRC } from '../constants';
 
 const BeeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-yellow-700">
@@ -20,24 +16,17 @@ export const Header: React.FC = () => {
             <div className="flex items-center space-x-4">
                 <div className="relative group">
                     <div className="bg-white rounded-full p-1 shadow-md group-hover:scale-110 transition-all duration-300 border-2 border-yellow-600/30 overflow-hidden h-16 w-16 flex items-center justify-center relative">
-                        {/* Das Fallback-Icon ist IMMER da, aber hinter dem Logo */}
+                        {/* Fallback Icon visible while loading */}
                         <div className="absolute inset-0 flex items-center justify-center bg-yellow-50 z-0">
                             <BeeIcon />
                         </div>
                         
-                        {/* 
-                            Das Bild liegt darüber. Falls es nicht lädt, bleibt es im DOM (für Rechtsklick),
-                            aber man sieht durch die Transparenz oder den Fehler die Biene darunter.
-                        */}
                         <img 
-                            src={LOGO_SRC} 
-                            alt="Blütenpiraten Logo" 
+                            src={BRAND_LOGO_SRC} 
+                            alt="Logo" 
                             className={`relative z-10 h-14 w-14 object-contain rounded-full transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
                             onLoad={() => setLogoLoaded(true)}
-                            onError={() => {
-                                console.error("Header-Logo konnte nicht geladen werden unter:", LOGO_SRC);
-                                setLogoLoaded(false);
-                            }}
+                            onError={() => setLogoLoaded(false)}
                         />
                     </div>
                 </div>

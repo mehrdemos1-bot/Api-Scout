@@ -8,26 +8,25 @@ import { AddressSearch } from './components/AddressSearch';
 import { AnalysisModal } from './components/AnalysisModal';
 import { analyzeForagePotential } from './services/geminiService';
 import type { Hive } from './types';
-import { DEFAULT_FLIGHT_RADIUS_METERS } from './constants';
-
-const SIDEBAR_LOGO_SRC = "/logo.png";
+import { DEFAULT_FLIGHT_RADIUS_METERS, BRAND_LOGO_SRC } from './constants';
 
 const App: React.FC = () => {
     const [hives, setHives] = useState<Hive[]>([]);
     const [selectedHive, setSelectedHive] = useState<Hive | null>(null);
     const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
     
+    // Sidebar logo loading state
+    const [sidebarLogoLoaded, setSidebarLogoLoaded] = useState(false);
+
     // State for AI analysis
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<string | null>(null);
     const [analysisError, setAnalysisError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [analyzedHive, setAnalyzedHive] = useState<Hive | null>(null);
-    const [sidebarLogoLoaded, setSidebarLogoLoaded] = useState(false);
 
     const mapApiRef = useRef<MapComponentApi>(null);
     const analysisAbortController = useRef<AbortController | null>(null);
-
 
     const handleAddHive = useCallback((lat: number, lng: number) => {
         if (hives.length >= 3) {
@@ -120,7 +119,6 @@ const App: React.FC = () => {
         analysisAbortController.current?.abort();
     }, []);
 
-
     return (
         <div className="flex flex-col h-screen font-sans bg-gray-50 text-gray-900">
             <Header />
@@ -138,7 +136,7 @@ const App: React.FC = () => {
                         isAnalyzing={isAnalyzing}
                     />
 
-                    {/* Brand Footer in Sidebar */}
+                    {/* Fixed Brand Footer in Sidebar */}
                     <div className="mt-auto pt-8 pb-4 flex flex-col items-center border-t border-gray-100">
                         <div className="relative w-20 h-20 mb-3 flex items-center justify-center overflow-hidden">
                             {/* Fallback-Hintergrund */}
@@ -148,16 +146,14 @@ const App: React.FC = () => {
                                 </svg>
                             </div>
                             <img 
-                                src={SIDEBAR_LOGO_SRC} 
-                                alt="Blütenpiraten" 
-                                className={`relative z-10 w-20 h-20 object-contain transition-all hover:scale-105 ${sidebarLogoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                src={BRAND_LOGO_SRC} 
+                                alt="Branding" 
+                                className={`relative z-10 w-20 h-20 object-contain transition-all hover:scale-105 rounded-full ${sidebarLogoLoaded ? 'opacity-100' : 'opacity-0'}`}
                                 onLoad={() => setSidebarLogoLoaded(true)}
-                                onError={() => {
-                                    console.error("Sidebar-Logo konnte nicht geladen werden unter:", SIDEBAR_LOGO_SRC);
-                                    setSidebarLogoLoaded(false);
-                                }}
+                                onError={() => setSidebarLogoLoaded(false)}
                             />
                         </div>
+
                         <a 
                             href="https://blütenpiraten.de" 
                             target="_blank" 
