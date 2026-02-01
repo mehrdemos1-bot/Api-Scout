@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 
 /**
- * Wir nutzen 'logo.png' (relativ), was in den meisten Umgebungen 
- * am zuverlässigsten funktioniert, wenn die Datei neben index.html liegt.
+ * Wir nutzen './logo.png' (relativ) mit einem Cache-Buster, 
+ * um sicherzustellen, dass die aktuellste Datei geladen wird.
  */
-const LOGO_SRC = "logo.png"; 
+const LOGO_SRC = "./logo.png?v=" + Date.now(); 
 
 const BeeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-yellow-700">
