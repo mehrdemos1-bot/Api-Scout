@@ -64,7 +64,7 @@ Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
 [Text]
 
 **Wichtiger Hinweis:**
-Diese Analyse dient nur der groben Orientierung und kann Fehler enthalten. Sie ersetzt keine Begutachtung vor Ort.
+Diese KI-gestütze Analyse dient der groben Orientierung und kann Fehler enthalten. Sie ersetzt keine Begutachtung vor Ort.
         `.trim();
 
         const response = await ai.models.generateContent({

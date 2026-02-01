@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 
 /**
- * HINWEIS: Damit das Logo erscheint, muss die Datei 'logo.png' 
- * im gleichen Verzeichnis wie die index.html liegen. 
+ * Wir nutzen 'logo.png' (relativ), was in den meisten Umgebungen 
+ * am zuverlässigsten funktioniert, wenn die Datei neben index.html liegt.
  */
 const LOGO_SRC = "logo.png"; 
 
@@ -20,13 +20,16 @@ export const Header: React.FC = () => {
         <header className="bg-yellow-400 text-gray-900 p-4 shadow-lg z-50 flex items-center justify-between border-b-2 border-yellow-500">
             <div className="flex items-center space-x-4">
                 <div className="relative group">
-                    {LOGO_SRC && !logoError ? (
+                    {!logoError ? (
                         <div className="bg-white rounded-full p-1 shadow-md group-hover:scale-110 transition-all duration-300 border-2 border-yellow-600/30">
                             <img 
                                 src={LOGO_SRC} 
                                 alt="Blütenpiraten Logo" 
-                                className="h-14 w-14 object-contain rounded-full bg-black shadow-inner"
-                                onError={() => setLogoError(true)}
+                                className="h-14 w-14 object-contain rounded-full bg-white shadow-inner"
+                                onError={() => {
+                                    console.error("Logo konnte nicht geladen werden unter:", LOGO_SRC);
+                                    setLogoError(true);
+                                }}
                             />
                         </div>
                     ) : (

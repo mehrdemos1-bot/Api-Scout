@@ -28,7 +28,6 @@ const App: React.FC = () => {
 
     const handleAddHive = useCallback((lat: number, lng: number) => {
         if (hives.length >= 3) {
-            // Wir verlassen uns auf das visuelle Feedback in der HiveList (Seitenleiste)
             return;
         }
         const newHive: Hive = {
@@ -135,6 +134,30 @@ const App: React.FC = () => {
                         onAnalyzeHive={handleAnalyzeHive}
                         isAnalyzing={isAnalyzing}
                     />
+
+                    {/* Brand Footer in Sidebar */}
+                    <div className="mt-auto pt-8 pb-4 flex flex-col items-center border-t border-gray-100">
+                        <img 
+                            src="logo.png" 
+                            alt="Blütenpiraten" 
+                            className="w-20 h-20 object-contain mb-3 opacity-80 hover:opacity-100 transition-opacity"
+                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                        <a 
+                            href="https://blütenpiraten.de" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-yellow-600 hover:text-yellow-700 font-bold text-sm transition-colors flex items-center space-x-1 group"
+                        >
+                            <span>www.blütenpiraten.de</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                        <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-widest font-bold">
+                            Homepage & Blog
+                        </p>
+                    </div>
                 </aside>
                 
                 <main className="flex-grow flex flex-col h-[60vh] md:h-auto relative z-10">
