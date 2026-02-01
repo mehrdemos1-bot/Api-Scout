@@ -27,12 +27,12 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({ onSearchResultClic
             }
             const data: SearchResult[] = await response.json();
             if (data.length === 0) {
-                setError('Keine Ergebnisse für diese Adresse gefunden.');
+                setError('Keine Ergebnisse gefunden.');
             } else {
                 setResults(data);
             }
         } catch (err) {
-            setError('Fehler bei der Adresssuche. Bitte versuchen Sie es später erneut.');
+            setError('Fehler bei der Adresssuche.');
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -46,21 +46,20 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({ onSearchResultClic
     };
 
     return (
-        <div className="mb-4">
-            <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 mb-3">Adresse suchen</h2>
-            <form onSubmit={handleSearch} className="flex space-x-2">
+        <div className="relative group">
+            <form onSubmit={handleSearch} className="flex space-x-0 rounded-md overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent transition-all">
                 <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Straße, Stadt eingeben..."
-                    className="flex-grow border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                    placeholder="Ort oder Adresse suchen..."
+                    className="flex-grow border-none bg-white p-2.5 text-sm focus:ring-0 focus:outline-none"
                     aria-label="Adresse suchen"
                 />
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-yellow-400 text-gray-800 font-bold py-2 px-4 rounded-md hover:bg-yellow-500 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="bg-yellow-400 text-gray-800 font-bold px-4 hover:bg-yellow-500 disabled:bg-gray-200 disabled:cursor-not-allowed flex items-center justify-center transition-colors border-l border-gray-200"
                     aria-label="Suchen"
                 >
                     {isLoading ? (
@@ -68,23 +67,38 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({ onSearchResultClic
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                    ) : 'Suchen'}
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    )}
                 </button>
             </form>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            {results.length > 0 && (
-                <ul className="mt-2 border border-gray-200 rounded-md bg-white max-h-60 overflow-y-auto">
-                    {results.map(result => (
-                        <li key={result.place_id}>
-                            <button
-                                onClick={() => handleResultClick(result)}
-                                className="w-full text-left p-2 text-sm text-gray-700 hover:bg-yellow-100 focus:outline-none focus:bg-yellow-100"
-                            >
-                                {result.display_name}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+            
+            {(error || results.length > 0) && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-md shadow-xl border border-gray-200 max-h-64 overflow-y-auto z-[2000]">
+                    {error && <p className="text-red-500 text-sm p-3">{error}</p>}
+                    {results.length > 0 && (
+                        <ul className="divide-y divide-gray-100">
+                            {results.map(result => (
+                                <li key={result.place_id}>
+                                    <button
+                                        onClick={() => handleResultClick(result)}
+                                        className="w-full text-left p-2.5 text-sm text-gray-700 hover:bg-yellow-50 transition-colors"
+                                    >
+                                        <div className="flex items-start">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            <span className="truncate">{result.display_name}</span>
+                                        </div>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             )}
         </div>
     );

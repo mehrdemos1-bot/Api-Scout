@@ -2,14 +2,33 @@
 import { GoogleGenAI } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// Einfacher In-Memory-Speicher für das Limit.
+// Hinweis: In Serverless-Umgebungen wie Vercel ist dies nicht 100% präzise, 
+// da Instanzen neu gestartet werden können, dient aber als guter Basisschutz.
+let usageCount = 0;
+let lastResetDate = new Date().toDateString();
+const MAX_DAILY_REQUESTS = 50;
+
 /**
  * Serverless Function für Vercel.
- * Diese Funktion läuft auf dem Server, daher ist der API_KEY hier sicher.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Nur POST-Anfragen erlauben
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Tageslimit-Check
+    const today = new Date().toDateString();
+    if (today !== lastResetDate) {
+        usageCount = 0;
+        lastResetDate = today;
+    }
+
+    if (usageCount >= MAX_DAILY_REQUESTS) {
+        return res.status(429).json({ 
+            error: 'Das globale Tageslimit für Analysen wurde bereits überschritten. Die Analyse ist erst morgen wieder möglich.' 
+        });
     }
 
     try {
@@ -31,7 +50,7 @@ Du bist ein weltweit führender Experte für Apidologie (Bienenkunde), Botanik u
 
 Hierfür führst du zwei Analyse-Ebenen zusammen:
 1) Visuelle Analyse: Analysiere das bereitgestellte Satellitenbild für den Standort (Koordinaten: ${lat}, ${lng}) und einen Flugradius von ${radius} Metern.
-2) Kontextuelle Analyse: Nutze dein Wissen über die Flora bei diesen Koordinaten.
+2) Kontextuelle Analyse: Nutze dein Wissen über die Flora und Landwirtschaft bei diesen Koordinaten.
 
 Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
 
@@ -44,7 +63,8 @@ Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
 **Zusammenfassung:**
 [Text]
 
-**Bewertung:** [Zahl]/10
+**Wichtiger Hinweis:**
+Diese Analyse dient nur der groben Orientierung und kann Fehler enthalten. Sie ersetzt keine Begutachtung vor Ort.
         `.trim();
 
         const response = await ai.models.generateContent({
@@ -59,6 +79,9 @@ Gib deine Antwort AUSSCHLIESSLICH in diesem Markdown-Format aus:
                 temperature: 0.1,
             }
         });
+
+        // Nur bei erfolgreicher Analyse den Zähler erhöhen
+        usageCount++;
 
         return res.status(200).json({ text: response.text });
 

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -13,18 +14,16 @@
             height: 100%;
             width: 100%;
         }
-        /* Fügt einen weichen unteren Rand bei scrollbaren Elementen auf Mobilgeräten hinzu,
-           um anzuzeigen, dass mehr Inhalt vorhanden ist. */
+        /* Verbessertes Scroll-Fade-Handling für Mobilgeräte */
         @media (max-width: 767px) {
-            .mobile-scroll-fade::after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 3rem; /* 48px */
-                background: linear-gradient(to top, white, transparent);
-                pointer-events: none;
+            .mobile-scroll-fade {
+                /* Verwendet eine Maske, die nur den untersten Teil des sichtbaren Bereichs ausfadet.
+                   Dies ist robuster als ein absolutes Overlay. */
+                -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+                mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+                /* Verhindert, dass die Maske mit dem Inhalt mitscrollt */
+                mask-size: 100% 100%;
+                mask-repeat: no-repeat;
             }
         }
     </style>

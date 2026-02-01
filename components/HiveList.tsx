@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Hive } from '../types';
 import { TRASH_ICON_SVG, FLIGHT_RADIUS_OPTIONS } from '../constants';
@@ -22,15 +23,28 @@ export const HiveList: React.FC<HiveListProps> = ({ hives, selectedHive, onSelec
     
     if (hives.length === 0) {
         return (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex flex-col items-center justify-center py-8">
                 <p className="text-gray-500 italic">Noch keine Bienenstöcke hinzugefügt.</p>
+                <p className="text-xs text-gray-400 mt-2">Klicke auf die Karte, um zu starten.</p>
             </div>
         );
     }
     
     return (
         <div className="space-y-3 mt-4">
-            <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">Ihre Bienenstöcke</h2>
+            <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 flex justify-between items-center">
+                <span>Deine Bienenstöcke</span>
+                <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${hives.length >= 3 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                    {hives.length}/3
+                </span>
+            </h2>
+
+            {hives.length >= 3 && (
+                <div className="p-2 bg-orange-50 border border-orange-200 rounded text-xs text-orange-700 mb-2">
+                    <strong>Limit erreicht:</strong> Du kannst maximal 3 Standorte gleichzeitig planen.
+                </div>
+            )}
+
             <ul className="space-y-2">
                 {hives.map((hive, index) => {
                     const isSelected = selectedHive?.id === hive.id;

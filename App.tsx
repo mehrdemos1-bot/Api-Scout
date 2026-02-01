@@ -5,7 +5,6 @@ import { HiveList } from './components/HiveList';
 import { Header } from './components/Header';
 import { Instructions } from './components/Instructions';
 import { AddressSearch } from './components/AddressSearch';
-import { RadiusSelector } from './components/RadiusSelector';
 import { AnalysisModal } from './components/AnalysisModal';
 import { analyzeForagePotential } from './services/geminiService';
 import type { Hive } from './types';
@@ -15,7 +14,6 @@ const App: React.FC = () => {
     const [hives, setHives] = useState<Hive[]>([]);
     const [selectedHive, setSelectedHive] = useState<Hive | null>(null);
     const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
-    const [currentRadius, setCurrentRadius] = useState<number>(DEFAULT_FLIGHT_RADIUS_METERS);
     
     // State for AI analysis
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -29,15 +27,19 @@ const App: React.FC = () => {
 
 
     const handleAddHive = useCallback((lat: number, lng: number) => {
+        if (hives.length >= 3) {
+            // Wir verlassen uns auf das visuelle Feedback in der HiveList (Seitenleiste)
+            return;
+        }
         const newHive: Hive = {
             id: crypto.randomUUID(),
             lat,
             lng,
-            radius: currentRadius,
+            radius: DEFAULT_FLIGHT_RADIUS_METERS,
         };
         setHives(prevHives => [...prevHives, newHive]);
         setSelectedHive(newHive);
-    }, [currentRadius]);
+    }, [hives]);
 
     const handleDeleteHive = useCallback((id: string) => {
         setHives(prevHives => prevHives.filter(hive => hive.id !== id));
@@ -49,13 +51,13 @@ const App: React.FC = () => {
     const handleSelectHive = useCallback((hive: Hive | null) => {
         setSelectedHive(hive);
         if (hive) {
-            setMapCenter(null); // Hive selection takes precedence over search
+            setMapCenter(null);
         }
     }, []);
 
     const handleSearchResultClick = useCallback((lat: number, lng: number) => {
         setMapCenter([lat, lng]);
-        setSelectedHive(null); // Deselect hive when searching
+        setSelectedHive(null);
     }, []);
 
     const handleUpdateHiveRadius = useCallback((hiveId: string, newRadius: number) => {
@@ -121,14 +123,9 @@ const App: React.FC = () => {
         <div className="flex flex-col h-screen font-sans bg-gray-50 text-gray-900">
             <Header />
             
-            <div className="flex flex-col md:flex-row flex-1 min-h-0">
-                <aside className="relative w-full md:w-1/3 lg:w-1/4 xl:w-1/5 md:flex-shrink-0 bg-white shadow-lg p-2 md:p-4 overflow-y-auto flex flex-col h-2/5 md:h-auto mobile-scroll-fade z-20">
-                    <AddressSearch onSearchResultClick={handleSearchResultClick} />
+            <div className="flex flex-col md:flex-row flex-1 min-h-0 relative">
+                <aside className="relative w-full md:w-1/3 lg:w-1/4 xl:w-1/5 md:flex-shrink-0 bg-white shadow-lg p-3 md:p-4 overflow-y-auto flex flex-col h-[40vh] md:h-auto mobile-scroll-fade z-20 border-r border-gray-200">
                     <Instructions />
-                    <RadiusSelector 
-                        selectedRadius={currentRadius}
-                        onRadiusChange={setCurrentRadius}
-                    />
                     <HiveList 
                         hives={hives} 
                         selectedHive={selectedHive}
@@ -140,23 +137,31 @@ const App: React.FC = () => {
                     />
                 </aside>
                 
-                <main className="flex-grow h-3/5 md:h-auto relative z-10">
-                    <MapComponent 
-                        ref={mapApiRef}
-                        hives={hives}
-                        onAddHive={handleAddHive}
-                        selectedHive={selectedHive}
-                        onSelectHive={handleSelectHive}
-                        searchResultCenter={mapCenter}
-                    />
+                <main className="flex-grow flex flex-col h-[60vh] md:h-auto relative z-10">
+                    <div className="p-3 bg-white border-b border-gray-200 relative z-[1001]">
+                        <div className="max-w-xl">
+                            <AddressSearch onSearchResultClick={handleSearchResultClick} />
+                        </div>
+                    </div>
+
+                    <div className="flex-grow relative overflow-hidden z-0">
+                        <MapComponent 
+                            ref={mapApiRef}
+                            hives={hives}
+                            onAddHive={handleAddHive}
+                            selectedHive={selectedHive}
+                            onSelectHive={handleSelectHive}
+                            searchResultCenter={mapCenter}
+                        />
+                    </div>
                 </main>
             </div>
 
             <footer className="bg-white border-t py-2 px-4 flex justify-between items-center text-[10px] text-gray-400 z-30">
                 <div>&copy; {new Date().getFullYear()} Api-Scout - Smart Beekeeping</div>
                 <div className="space-x-4">
-                    <a href="#" className="hover:text-yellow-600">Impressum</a>
-                    <a href="#" className="hover:text-yellow-600">Datenschutz</a>
+                    <a href="https://blütenpiraten.de/impressum/" className="hover:text-yellow-600">Impressum</a>
+                    <a href="https://blütenpiraten.de/datenschutz" className="hover:text-yellow-600">Datenschutz</a>
                 </div>
             </footer>
 

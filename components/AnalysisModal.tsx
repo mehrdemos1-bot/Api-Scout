@@ -31,50 +31,12 @@ const formatAnalysisText = (text: string): React.ReactNode[] => {
         line = line.trim();
 
         // Match headings like **Futterquellen:**
-        if (line.startsWith('**') && line.endsWith('**') && !line.includes('Bewertung:')) {
+        if (line.startsWith('**') && line.endsWith('**')) {
             flushList();
             elements.push(
                 <h3 key={index} className="text-xl font-semibold text-gray-800 mt-6 mb-3 pb-2 border-b border-gray-200">
                     {line.slice(2, -2)}
                 </h3>
-            );
-        // Match the rating line like **Bewertung:** 8/10
-        } else if (line.startsWith('**Bewertung:')) {
-            flushList();
-            const ratingText = line.replace(/\*+/g, '').replace('Bewertung:', '').trim();
-            const [score, max] = ratingText.split('/');
-            const numericScore = parseInt(score, 10);
-            
-            let bgColor = 'bg-gray-100';
-            let textColor = 'text-gray-800';
-            let label = 'Neutral';
-
-            if (!isNaN(numericScore)) {
-                if (numericScore >= 8) {
-                    bgColor = 'bg-green-100';
-                    textColor = 'text-green-800';
-                    label = 'Ausgezeichnet';
-                } else if (numericScore >= 5) {
-                    bgColor = 'bg-yellow-100';
-                    textColor = 'text-yellow-800';
-                    label = 'Gut';
-                } else {
-                    bgColor = 'bg-red-100';
-                    textColor = 'text-red-800';
-                    label = 'Verbesserungswürdig';
-                }
-            }
-
-
-            elements.push(
-                <div key={index} className={`mt-6 p-4 rounded-lg ${bgColor}`}>
-                    <h4 className={`text-sm font-bold uppercase tracking-wider ${textColor} mb-2`}>Bewertung</h4>
-                    <div className="flex items-baseline space-x-2">
-                        <span className={`text-4xl font-extrabold ${textColor}`}>{score || '?'}</span>
-                        <span className={`text-xl font-semibold text-gray-500`}>/ {max || '10'}</span>
-                    </div>
-                     <p className={`text-sm font-semibold mt-1 ${textColor}`}>{label}</p>
-                </div>
             );
         // Match list items like * ...
         } else if (line.startsWith('* ') || line.startsWith('- ')) {

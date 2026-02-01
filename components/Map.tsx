@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, forwardRef, useRef, useImperativeHandle, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents, Pane } from 'react-leaflet';
 import L from 'leaflet';
@@ -13,35 +14,34 @@ import {
     BEEHIVE_ICON_SVG 
 } from '../constants';
 
-// Helper component to fix map sizing issues in flexible layouts
+// Helper component to fix map sizing issues
 const MapSizingFix: React.FC = () => {
     const map = useMap();
     useEffect(() => {
-        // A brief delay to allow the container to render and settle its size,
-        // then tell Leaflet to update its size. This is a common fix for flexbox/grid layouts.
         const timer = setTimeout(() => {
             map.invalidateSize();
         }, 100);
-
-        return () => {
-            clearTimeout(timer);
-        };
+        return () => clearTimeout(timer);
     }, [map]);
     return null;
 };
 
-
-// Helper component to handle map click events for adding hives
+// Fixed MapClickHandler using a ref to prevent stale closures in event listeners
 const MapClickHandler: React.FC<{ onAddHive: (lat: number, lng: number) => void }> = ({ onAddHive }) => {
+    const onAddHiveRef = useRef(onAddHive);
+    
+    useEffect(() => {
+        onAddHiveRef.current = onAddHive;
+    }, [onAddHive]);
+
     useMapEvents({
         click(e) {
-            onAddHive(e.latlng.lat, e.latlng.lng);
+            onAddHiveRef.current(e.latlng.lat, e.latlng.lng);
         },
     });
     return null;
 };
 
-// Helper component to pan the map to a given center
 const RecenterView: React.FC<{ center: [number, number] | null }> = ({ center }) => {
     const map = useMap();
     useEffect(() => {
@@ -95,13 +95,11 @@ export const MapComponent = forwardRef<MapComponentApi, MapComponentProps>(({ hi
                 throw new Error("Karte oder Bienenstock für die Analyse nicht bereit.");
             }
 
-            // Temporarily hide the circle for capture
             setAnalyzingHiveId(hiveId);
 
             const bounds = L.latLng(hiveToAnalyze.lat, hiveToAnalyze.lng).toBounds(hiveToAnalyze.radius);
             map.fitBounds(bounds, { padding: [10, 10], animate: true, duration: 1 });
 
-            // Wait for map animation and tiles to load before capture
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             const mapContainer = map.getContainer();
@@ -118,12 +116,8 @@ export const MapComponent = forwardRef<MapComponentApi, MapComponentProps>(({ hi
                 height: southEastPoint.y - northWestPoint.y,
             });
 
-            // Compress image to 80% quality to reduce file size and speed up analysis
             const base64Image = canvas.toDataURL('image/jpeg', 0.8);
-
-            // Restore circle visibility
             setAnalyzingHiveId(null);
-
             return base64Image.split(',')[1];
         }
     }));
@@ -149,7 +143,6 @@ export const MapComponent = forwardRef<MapComponentApi, MapComponentProps>(({ hi
                     maxNativeZoom={18}
                 />
                 
-                {/* Labels are kept on a separate pane to ensure they render on top of the filter. */}
                 <Pane name="labels" style={{ zIndex: 450 }} />
                 <TileLayer 
                     url={MAP_TILE_URL_LABELS}
@@ -158,12 +151,9 @@ export const MapComponent = forwardRef<MapComponentApi, MapComponentProps>(({ hi
                     maxNativeZoom={18}
                 />
                 <MapClickHandler onAddHive={onAddHive} />
-                
                 <RecenterView center={viewCenter} />
-
                 <MapSizingFix />
 
-                {/* Render markers and their flight radius circles. */}
                 {hives.map(hive => {
                     const isSelected = selectedHive?.id === hive.id;
                     return (
@@ -176,7 +166,7 @@ export const MapComponent = forwardRef<MapComponentApi, MapComponentProps>(({ hi
                                         onSelectHive(hive);
                                     },
                                 }}
-                                zIndexOffset={1000} // Ensure markers are on top
+                                zIndexOffset={1000}
                             />
                              {hive.id !== analyzingHiveId && (
                                 <Circle
@@ -186,7 +176,8 @@ export const MapComponent = forwardRef<MapComponentApi, MapComponentProps>(({ hi
                                         color: isSelected ? '#f59e0b' : '#3b82f6', 
                                         fillColor: isSelected ? '#fcd34d' : '#93c5fd',
                                         fillOpacity: 0.3,
-                                        weight: isSelected ? 3 : 2
+                                        weight: isSelected ? 3 : 2,
+                                        interactive: false // Klicks gehen durch den Radius durch auf die Karte
                                     }}
                                 />
                              )}
