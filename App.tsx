@@ -10,6 +10,8 @@ import { analyzeForagePotential } from './services/geminiService';
 import type { Hive } from './types';
 import { DEFAULT_FLIGHT_RADIUS_METERS } from './constants';
 
+const SIDEBAR_LOGO_SRC = "/logo.png";
+
 const App: React.FC = () => {
     const [hives, setHives] = useState<Hive[]>([]);
     const [selectedHive, setSelectedHive] = useState<Hive | null>(null);
@@ -21,7 +23,7 @@ const App: React.FC = () => {
     const [analysisError, setAnalysisError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [analyzedHive, setAnalyzedHive] = useState<Hive | null>(null);
-    const [sidebarLogoError, setSidebarLogoError] = useState(false);
+    const [sidebarLogoLoaded, setSidebarLogoLoaded] = useState(false);
 
     const mapApiRef = useRef<MapComponentApi>(null);
     const analysisAbortController = useRef<AbortController | null>(null);
@@ -138,21 +140,21 @@ const App: React.FC = () => {
 
                     {/* Brand Footer in Sidebar */}
                     <div className="mt-auto pt-8 pb-4 flex flex-col items-center border-t border-gray-100">
-                        <div className="relative w-20 h-20 mb-3 flex items-center justify-center">
-                            {sidebarLogoError && (
-                                <div className="absolute inset-0 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600 border border-yellow-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
-                                        <path fillRule="evenodd" d="M15.97 3.97a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22-2.16-2.16a.75.75 0 0 1 0-1.06Zm-4.94 0a.75.75 0 0 1 0 1.06L8.84 7.22l-3.22-3.22a.75.75 0 0 1 1.06-1.06l3 3ZM12 5.25a.75.75 0 0 1 .75.75v3.68l1.43-1.43a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L8.7 9.31a.75.75 0 1 1 1.06-1.06l1.44 1.44V6a.75.75 0 0 1 .75-.75Zm-3.75 9a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm-2.25 3a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                            )}
+                        <div className="relative w-20 h-20 mb-3 flex items-center justify-center overflow-hidden">
+                            {/* Fallback-Hintergrund */}
+                            <div className="absolute inset-0 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600 border border-yellow-200 z-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10">
+                                    <path fillRule="evenodd" d="M15.97 3.97a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22-2.16-2.16a.75.75 0 0 1 0-1.06Zm-4.94 0a.75.75 0 0 1 0 1.06L8.84 7.22l-3.22-3.22a.75.75 0 0 1 1.06-1.06l3 3ZM12 5.25a.75.75 0 0 1 .75.75v3.68l1.43-1.43a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L8.7 9.31a.75.75 0 1 1 1.06-1.06l1.44 1.44V6a.75.75 0 0 1 .75-.75Zm-3.75 9a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm-2.25 3a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                                </svg>
+                            </div>
                             <img 
-                                src="logo.png" 
+                                src={SIDEBAR_LOGO_SRC} 
                                 alt="Blütenpiraten" 
-                                className={`w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-all hover:scale-105 ${sidebarLogoError ? 'opacity-0' : 'opacity-100'}`}
+                                className={`relative z-10 w-20 h-20 object-contain transition-all hover:scale-105 ${sidebarLogoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                onLoad={() => setSidebarLogoLoaded(true)}
                                 onError={() => {
-                                    console.error("Sidebar-Logo Fehler: logo.png");
-                                    setSidebarLogoError(true);
+                                    console.error("Sidebar-Logo konnte nicht geladen werden unter:", SIDEBAR_LOGO_SRC);
+                                    setSidebarLogoLoaded(false);
                                 }}
                             />
                         </div>

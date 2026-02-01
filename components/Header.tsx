@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 
 /**
- * Wir nutzen den einfachsten relativen Pfad. 
- * Falls die Datei im selben Verzeichnis wie index.html liegt, ist dies am sichersten.
+ * Absoluter Pfad ist in Web-Umgebungen am stabilsten.
  */
-const LOGO_SRC = "logo.png"; 
+const LOGO_SRC = "/logo.png"; 
 
 const BeeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 text-yellow-700">
@@ -14,26 +13,30 @@ const BeeIcon = () => (
 );
 
 export const Header: React.FC = () => {
-    const [logoError, setLogoError] = useState(false);
+    const [logoLoaded, setLogoLoaded] = useState(false);
 
     return (
         <header className="bg-yellow-400 text-gray-900 p-4 shadow-lg z-50 flex items-center justify-between border-b-2 border-yellow-500">
             <div className="flex items-center space-x-4">
                 <div className="relative group">
-                    <div className="bg-white rounded-full p-1 shadow-md group-hover:scale-110 transition-all duration-300 border-2 border-yellow-600/30 overflow-hidden h-16 w-16 flex items-center justify-center">
-                        {/* Wir rendern das Icon IMMER als Hintergrund/Fallback */}
-                        {logoError && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-yellow-50">
-                                <BeeIcon />
-                            </div>
-                        )}
+                    <div className="bg-white rounded-full p-1 shadow-md group-hover:scale-110 transition-all duration-300 border-2 border-yellow-600/30 overflow-hidden h-16 w-16 flex items-center justify-center relative">
+                        {/* Das Fallback-Icon ist IMMER da, aber hinter dem Logo */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-yellow-50 z-0">
+                            <BeeIcon />
+                        </div>
+                        
+                        {/* 
+                            Das Bild liegt darüber. Falls es nicht lädt, bleibt es im DOM (für Rechtsklick),
+                            aber man sieht durch die Transparenz oder den Fehler die Biene darunter.
+                        */}
                         <img 
                             src={LOGO_SRC} 
                             alt="Blütenpiraten Logo" 
-                            className={`h-14 w-14 object-contain rounded-full transition-opacity duration-300 ${logoError ? 'opacity-0' : 'opacity-100'}`}
-                            onError={(e) => {
-                                console.error("Header-Logo Fehler:", LOGO_SRC);
-                                setLogoError(true);
+                            className={`relative z-10 h-14 w-14 object-contain rounded-full transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            onLoad={() => setLogoLoaded(true)}
+                            onError={() => {
+                                console.error("Header-Logo konnte nicht geladen werden unter:", LOGO_SRC);
+                                setLogoLoaded(false);
                             }}
                         />
                     </div>
